@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link type="text/css" href="/static/css/main.css" rel="stylesheet" /><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link type="text/css" href="/static/css/main.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+      #search-container {
+        margin-top: 200px;
+      }
+
+      #result-area {
+        display: None;
+        margin-top: 100px;
+      }
+
+      #result {
+        overflow-y: scroll;
+        height: 400px;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <div class="container" id="search-container">
+      <div class="mt-5">
+        <h1 class="text-center">Product Search</h1>
+      </div>
+      <div class="row">
+        <input type="text" id="input-search" class="col-sm-11 form-control form-control-lg" placeholder="Type your search here">
+        <button type="button" class="col-sm-1 btn btn-danger" onclick="submit()" id="search-button"><i class="fas fa-search"></i></button>
+      </div>
+      <div id="result-area">
+        <div>
+          <label class="font-weight-bol"><h3>Search results</h3></label>
+        </div>
+        <ul id="result" class="list-group">
+          
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      function submit(){
+        var query = document.getElementById("input-search").value;
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            process_product_list(this.responseText)
+          }
+        };
+        var phrase = new FormData();
+        xhttp.open("POST", "/ajaxhandler", true);
+        xhttp.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+        phrase.append('phrase','giang');
+        xhttp.send('keyword=' + query);
+        console.log(query);
+        }
+
+
+      function process_product_list(response){
+        var resultList = JSON.parse(response);
+        var displayResult = new Array();
+        for (i=0; i<resultList.length;i++) {
+          displayResult.push("<li class='list-group-item bg-info text-white'><h5>" + resultList[i] +"</h5></li>");
+        }
+        document.getElementById("result").innerHTML = displayResult.join("\n");
+        document.getElementById("result-area").style.display = "block";
+        document.getElementById("search-container").style.marginTop = '0px';
+        }
+
+      window.addEventListener("keypress", function(e) {
+        if (e.keyCode == 13){
+          document.getElementById("search-button").click();
+        }
+      })
+    </script>
+
+  </body>
+</html>

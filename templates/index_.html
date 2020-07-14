@@ -1,0 +1,158 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link type="text/css" href="/static/css/main.css" rel="stylesheet" /><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link type="text/css" href="/static/css/main.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+      #search-container {
+        margin-top: 200px;
+      }
+
+      #result-area {
+        display: None;
+      }
+
+      #result {
+        overflow-y: scroll;
+        height: 400px;
+      }
+
+      .tag {
+        font-size: 20px;
+        color: black;
+      }
+
+      .tagged-text {
+        margin: 10px;
+      }
+
+      .tagged_sentence{
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <div class="container" id="search-container">
+      <div class="mt-5">
+        <h1 class="text-center">Product Search</h1>
+        <p align="center">
+          <span class="tag rounded" style="background-color: #ff4d4d;"><label class="tagged-text">target</label></span>
+          <span class="tag rounded" style="background-color: #11fc00;"><label class="tagged-text">brand</label></span>
+          <span class="tag rounded" style="background-color: #8081ff;"><label class="tagged-text">user</label></span>
+          <span class="tag rounded" style="background-color: #ff69c0;"><label class="tagged-text">price</label></span>
+          <span class="tag rounded" style="background-color: #ff8400;"><label class="tagged-text">size</label></span>
+          <span class="tag rounded" style="background-color: #dae81c;"><label class="tagged-text">color</label></span>
+          <span class="tag rounded" style="background-color: #fcba6f;"><label class="tagged-text">status</label></span>
+          <span class="tag rounded" style="background-color: #03fce3;"><label class="tagged-text">origin</label></span>
+          <span class="tag rounded" style="background-color: #d273ff;"><label class="tagged-text">location</label></span>
+        </p>
+      </div>
+      <div class="row">
+        <input type="text" id="input-search" class="col-sm-11 form-control form-control-lg" placeholder="Type your search here">
+        <button type="button" class="col-sm-1 btn btn-danger" onclick="submit()" id="search-button"><i class="fas fa-search"></i></button>
+      </div>
+      <div><p id="tagged_sentence"></div>
+      <div id="result-area">
+        <div>
+          <label class="font-weight-bol"><h3>Search results</h3></label>
+        </div>
+        <ul id="result" class="list-group list-group-flush"></ul>
+      </div>
+    </div>
+
+    <script>
+      var tag_to_color = {
+        "<target>": "#ff4d4d",
+        "<brand>": "#11fc00",
+        "<user>": "#8081ff",
+        "<price>": "#ff69c0",
+        "<size>": "#ff8400",
+        "<color>": "#dae81c",
+        "<status>": "#fcba6f",
+        "<origin>": "#03fce3",
+        "<loc>": "#d273ff"
+      };
+
+      function submit(){
+        var query = document.getElementById("input-search").value;
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            process_result(this.responseText, query)
+          }
+        };
+        var phrase = new FormData();
+        xhttp.open("POST", "/ajaxhandlermodel", true);
+        xhttp.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+        phrase.append('phrase','giang');
+        xhttp.send('keyword=' + query);
+        console.log(query);
+        }
+
+
+      function process_result(response, query){
+        var resultList = JSON.parse(response);
+
+        var tag_display = resultList['tagged_sentences']['tag_display'];
+        // console.log(tag_display);
+        var displayTaggedSentence = new Array();
+        for (i=0; i<tag_display.length; i++) {
+          if (tag_display[i][1] != "") {
+            displayTaggedSentence.push("<span class='tag rounded' style='background-color: " + tag_to_color[tag_display[i][1]] + ";'><label class='tagged-text'>" + tag_display[i][0] + "</label></span>");
+          }
+          else {
+            displayTaggedSentence.push("<label class='tag'>" + tag_display[i][0] + "</label>"); 
+          }
+        }
+
+        var non_tag_display = resultList['tagged_sentences']['non_tag_display'];
+        // console.log(non_tag_display);
+        var i=0;
+        var visited = new Array();
+        while (i < non_tag_display.length) {
+          for (j=0;j<displayTaggedSentence.length;j++){
+            if (visited.includes(j)===false || displayTaggedSentence[j].includes(non_tag_display[i][0])){
+              displayTaggedSentence[j] = displayTaggedSentence[j].replace(non_tag_display[i][0], "<span class='tag rounded' style='background-color: " + tag_to_color[non_tag_display[i][1]] + ";'><label class='tagged-text'>" + non_tag_display[i][0] + "</label></span>");
+              visited.push(j);
+              break;
+            }
+          }
+          i++;
+        }
+
+        document.getElementById('tagged_sentence').innerHTML = displayTaggedSentence.join('\n');
+
+        var productList = resultList['product_list'];
+        // console.log(product_list);
+        var displayResult = new Array();
+        for (i=0; i<productList.length; i++) {
+          displayResult.push("<li class='list-group-item bg-info text-white'><h5>" + productList[i] +"</h5></li>");
+        }
+        document.getElementById("result").innerHTML = displayResult.join("\n");
+        document.getElementById("result-area").style.display = "block";
+        document.getElementById("search-container").style.marginTop = '0px';
+      }
+
+      window.addEventListener("keypress", function(e) {
+        if (e.keyCode == 13){
+          document.getElementById("search-button").click();
+        }
+      })
+    </script>
+
+  </body>
+</html>
