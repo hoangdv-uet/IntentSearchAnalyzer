@@ -73,7 +73,7 @@ torch
 torchvision==0.5.0
 tqdm==4.43.0
 transformers==2.5.1
-urllib3==1.24.3
+urllib3==1.26.5
 wcwidth==0.1.9
 Werkzeug==1.0.0
 wincertstore==0.2
